@@ -424,7 +424,7 @@ async function runPrompts({ prompts }) {
 	};
 }
 
-// Hygen loads this file and calls hooksModule.filter(); it expects an array.
-// We export the function for the addon and attach .filter = [] so Hygen skips prompting (addon already ran prompts).
-runPrompts.filter = [];
+// Hygen: if hooksModule.params exists, it returns that and never calls .filter.
+// Addon already passed args via CLI; we return args so Hygen uses them and does not prompt again.
+runPrompts.params = ({ args }) => args;
 export default runPrompts;
