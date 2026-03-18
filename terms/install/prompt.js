@@ -349,7 +349,7 @@ async function askSelect(prompts, { message, choices }) {
 	return res?.v;
 }
 
-export default async function runPrompts({ prompts }) {
+async function runPrompts({ prompts }) {
 	const today = new Date().toISOString().slice(0, 10);
 	const serviceName = await askText(prompts, {
 		message: 'Your service name (placeholder in documents: [SERVICE]; leave as-is to keep placeholder)',
@@ -424,6 +424,5 @@ export default async function runPrompts({ prompts }) {
 	};
 }
 
-// Hygen loads this file and expects the hook to be an array (so it can call .filter). The addon runs
-// our default function for prompts; when Hygen runs it already has CLI args, so we expose an empty list.
-runPrompts.filter = [];
+// Export an object so Hygen sees .filter (array); addon calls .run(). Avoids "hooksModule.filter is not a function".
+export default { run: runPrompts, filter: [] };
