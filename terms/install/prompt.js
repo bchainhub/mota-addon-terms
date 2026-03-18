@@ -424,5 +424,7 @@ async function runPrompts({ prompts }) {
 	};
 }
 
-// Export an object so Hygen sees .filter (array); addon calls .run(). Avoids "hooksModule.filter is not a function".
-export default { run: runPrompts, filter: [] };
+// Hygen loads this file and calls hooksModule.filter(); it expects an array.
+// We export the function for the addon and attach .filter = [] so Hygen skips prompting (addon already ran prompts).
+runPrompts.filter = [];
+export default runPrompts;
