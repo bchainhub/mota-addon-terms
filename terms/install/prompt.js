@@ -423,3 +423,7 @@ export default async function runPrompts({ prompts }) {
 		privacyContent: escapeEjs(privacyContent)
 	};
 }
+
+// Hygen loads this file and expects the hook to be an array (so it can call .filter). The addon runs
+// our default function for prompts; when Hygen runs it already has CLI args, so we expose an empty list.
+runPrompts.filter = [];
