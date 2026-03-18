@@ -339,27 +339,37 @@ function getDefaultPrivacy(serviceName, supportEmail, lastUpdated) {
 	return applyPlaceholders(DEFAULT_PRIVACY_HTML, serviceName, supportEmail, lastUpdated);
 }
 
+async function askText(prompts, { message, initial }) {
+	const res = await prompts({ type: 'text', name: 'v', message, initial });
+	return res?.v;
+}
+
+async function askSelect(prompts, { message, choices }) {
+	const res = await prompts({ type: 'select', name: 'v', message, choices });
+	return res?.v;
+}
+
 export default async function runPrompts({ prompts }) {
 	const today = new Date().toISOString().slice(0, 10);
-	const serviceName = await prompts.text({
+	const serviceName = await askText(prompts, {
 		message: 'Your service name (placeholder in documents: [SERVICE]; leave as-is to keep placeholder)',
 		initial: PLACEHOLDER_SERVICE
 	});
 	if (serviceName === undefined) process.exit(1);
 
-	const supportEmail = await prompts.text({
+	const supportEmail = await askText(prompts, {
 		message: 'Support email address (placeholder in documents: [EMAIL]; leave as-is to keep placeholder)',
 		initial: PLACEHOLDER_EMAIL
 	});
 	if (supportEmail === undefined) process.exit(1);
 
-	const lastUpdated = await prompts.text({
+	const lastUpdated = await askText(prompts, {
 		message: 'Last Updated date (placeholder: [DATE]; use YYYY-MM-DD or leave blank for today)',
 		initial: today
 	});
 	if (lastUpdated === undefined) process.exit(1);
 
-	const tosChoice = await prompts.select({
+	const tosChoice = await askSelect(prompts, {
 		message: 'Terms of Service content',
 		choices: [
 			{ title: 'Use default template', value: 'template' },
@@ -373,7 +383,7 @@ export default async function runPrompts({ prompts }) {
 	if (tosChoice === 'template') {
 		tosContent = getDefaultToS(serviceName, supportEmail, lastUpdated);
 	} else {
-		const pasted = await prompts.text({
+		const pasted = await askText(prompts, {
 			message: 'Paste your ToS HTML content (then press Enter)',
 			initial: ''
 		});
@@ -381,7 +391,7 @@ export default async function runPrompts({ prompts }) {
 		tosContent = applyPlaceholders(raw, serviceName, supportEmail, resolvedDate);
 	}
 
-	const privacyChoice = await prompts.select({
+	const privacyChoice = await askSelect(prompts, {
 		message: 'Privacy Policy content',
 		choices: [
 			{ title: 'Use default template', value: 'template' },
@@ -394,7 +404,7 @@ export default async function runPrompts({ prompts }) {
 	if (privacyChoice === 'template') {
 		privacyContent = getDefaultPrivacy(serviceName, supportEmail, lastUpdated);
 	} else {
-		const pasted = await prompts.text({
+		const pasted = await askText(prompts, {
 			message: 'Paste your Privacy Policy HTML content (then press Enter)',
 			initial: ''
 		});
